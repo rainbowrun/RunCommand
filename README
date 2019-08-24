@@ -19,8 +19,9 @@ change the active window of the other GNU screen to the window with the same
 window number of the GNU screen session where Vim is running. That window is
 called peer window. For example, your Vim session is running in window 0,
 "<Leader>re" will use window 0 of the other GNU screen session as the peer
-window. It will also change the current working directory (CWD) of the shell in
-that peer window to the current working directory of the Vim session.
+window, and make that window visible. It will also change the current working
+directory (CWD) of the peer window to the current working directory of the Vim
+session.
 
 2) In the Vim window for the command file, you can edit shell commands. In Vim
 normal mode, press <Enter> will send the current line as shell command to the

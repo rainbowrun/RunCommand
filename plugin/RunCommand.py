@@ -235,21 +235,6 @@ def PrepareTargetWindow(target_screen, target_window):
       shell=True)
 
 
-def MoveToNthWindowLeftToRight(n):
-  if n == 'e':
-    return
-  elif n == 's':
-    vim.command('new')
-  elif n == 'v':
-    vim.command('only')
-    vim.command('vnew')
-  else:
-    vim.command('3wincmd h')
-    right_step = int(n) - 1
-    if right_step > 0:
-      vim.command('%swincmd l' % right_step)
-
-
 def RN(n):
   # Pick up the target screen session.
   local_screen, local_window, remote_screen = DetectScreenSessionAndWindow()
@@ -297,7 +282,27 @@ def RN(n):
   PrepareTargetWindow(target_screen, target_window)
 
 
-# Map <Leader>r to default action.
-vim.command("nnoremap <Leader>re :py RN('%s')<CR>" %
+# Move the cursor to window 'n'.
+def MoveToNthWindowLeftToRight(n):
+  if n == 'e':
+    return
+  elif n == 's':
+    vim.command('new')
+  elif n == 'v':
+    vim.command('only')
+    vim.command('vnew')
+  else:
+    vim.command('3wincmd h')
+    right_step = int(n) - 1
+    if right_step > 0:
+      vim.command('%swincmd l' % right_step)
+
+
+# Quickly map a python function to many windows.
+# 'window_list' is a list of 'e', 's', 'v', '1', '2', '3', '4'.
+def MapFunction(function_name, leading_character, window_list):
+  for window in window_list:
+    vim.command("nnoremap <Leader>%s%s :py %s('%s')<CR>" %
                 (leading_character, window, function_name, window))
+
 MapFunction('RN', 'r', ['e', 's', 'v', '1', '2', '3', '4'])

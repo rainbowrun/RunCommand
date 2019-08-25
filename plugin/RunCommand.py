@@ -65,53 +65,60 @@ def DetectScreenSessionAndWindow():
   # Return local screen, local window and remote screen.
   return (local_screen_pid, os.environ['WINDOW'], remote_screen_pid)
 
+# Clean up a command line by removing comment, trailing backslash, etc.
+# Return cleaned line.
+def CleanupLine(line):
+  line = line.strip()
+  if not line:
+    return line
+
+  # The following code which process the leading comment and the shell prompt
+  # is design for the case where example command lines which are usually
+  # commented out in the source files, such as
+  #    // $ borgcfg x.borg
+  #    //   --vars=foo=bar
+  #    //   up
+
+  # Process the comment at the beginning of the line.
+  if line.startswith('#'):
+    line = line[1:]
+    line = line.lstrip()
+  elif line.startswith('//'):
+    line = line[2:]
+    line = line.lstrip()
+
+  # Process the possibly '$' shell prompt
+  if line.startswith('$'):
+    line = line[1:]
+    line = line.lstrip()
+
+  # Process the backslash at the end of the line.
+  if line.endswith('\\'):
+    # If a line ends with backslash, it is meant to join with the next line
+    # without any whitespace.
+    line = line[:-1]     # Remove backslash.
+  else:
+    line += ' ' # Put a space at the end of the line so the following
+                # line is joined with this line separated by this space.
+                # It is fine with an extra space at the end of the whole
+                # command.
+
+  return line
+
 
 def NormalGetCommand():
-  return vim.current.line
+  return CleanupLine(vim.current.line)
 
 
 def VisualGetCommand():
-  command = vim.eval('GetVisualSelection()')
+  # Python index is 0-based, but mark function returns 1-based index.
+  start_line = vim.current.buffer.mark('<')[0] - 1
+  end_line = vim.current.buffer.mark('>')[0]
 
   # Get rid of the newline and the extra whitespace of each line.
   clean_lines = []
-  for line in command.splitlines():
-    line = line.strip()
-    if not line:
-      continue
-
-    # The following code which process the leading comment and the shell prompt
-    # is design for the case where example command lines which are usually
-    # commented out in the source files, such as
-    #    // $ borgcfg x.borg
-    #    //   --vars=foo=bar
-    #    //   up
-
-    # Process the comment at the beginning of the line.
-    if line.startswith('#'):
-      line = line[1:]
-      line = line.lstrip()
-    elif line.startswith('//'):
-      line = line[2:]
-      line = line.lstrip()
-
-    # Process the possibly '$' shell prompt
-    if line.startswith('$'):
-      line = line[1:]
-      line = line.lstrip()
-      
-    # Process the backslash at the end of the line.
-    if line.endswith('\\'):
-      # If a line ends with backslash, it is meant to join with the next line
-      # without any whitespace.
-      line = line[:-1]     # Remove backslash first
-    else:
-      line += ' ' # Put a space at the end of the line so the following
-                  # line is joined with this line separated by this space.
-                  # It is fine with an extra space at the end of the whole
-                  # command.
-
-    clean_lines.append(line)
+  for line in vim.current.buffer[start_line:end_line]:
+    clean_lines.append(CleanupLine(line))
 
   return ''.join(clean_lines)
 

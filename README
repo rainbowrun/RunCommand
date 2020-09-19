@@ -1,7 +1,7 @@
 RunCommand is a vim plugin which runs shell commands within a vim buffer.
 
 ===== Install
-Your vim should be compiled with Python 2 support.
+Your vim should be compiled with Python 3 support.
 
 1) Download the "RunCommand.py" file to your "~/.vim" directory.
 2) Add the "pyfile ~/.vim/RunCommand.py" to your "~/.vimrc" file.
